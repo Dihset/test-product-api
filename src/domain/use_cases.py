@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+from src.domain.commands import CreateProductCommand
 from src.domain.entities import Product
 from src.domain.services import IProductService
 
@@ -24,8 +25,8 @@ class GetProductUseCase:
 class CreateProductUseCase:
     product_service: IProductService
 
-    async def execute(self) -> Product:
-        pass
+    async def execute(self, command: CreateProductCommand) -> Product:
+        return await self.product_service.create(command.product)
 
 
 @dataclass

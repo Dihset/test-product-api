@@ -1,29 +1,31 @@
-from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from src.domain.entities import Product
+from src.domain.services import IProductService
+from src.gateways.mongodb.dto import ProductDto
+from src.gateways.mongodb.repositories import IProductRepository
 
 
-class IProductService(ABC):
-    @abstractmethod
+@dataclass
+class MongoProductService(IProductService):
+    repository: IProductRepository
+
     async def get_by_id(self, oidstr) -> Product:
         pass
 
-    @abstractmethod
     async def create(self, product: Product) -> Product:
-        pass
+        dto = ProductDto.from_entity(product)
+        dto = await self.repository.create(dto)
+        return dto.to_entity()
 
-    @abstractmethod
     async def update(self, product: Product) -> Product:
         pass
 
-    @abstractmethod
     async def delete(self, oid: str) -> Product:
         pass
 
-    @abstractmethod
     async def find_many(self, **kwargs) -> list[Product]:
         pass
 
-    @abstractmethod
     async def count_many(self, **kwargs) -> int:
         pass

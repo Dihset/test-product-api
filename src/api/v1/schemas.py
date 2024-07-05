@@ -1,7 +1,8 @@
 from typing import Any, Generic, TypeVar
-from uuid import UUID
 
 from pydantic import BaseModel, Field
+
+from src.domain.entities import Product
 
 TData = TypeVar("TData")
 TListItem = TypeVar("TListItem")
@@ -25,8 +26,34 @@ class ApiResponse(BaseModel, Generic[TData]):
 
 
 class ProductOutSchema(BaseModel):
-    oid: UUID | None
+    oid: str
     name: str
     description: str
     price: int
     category: str
+
+    @staticmethod
+    def from_entity(entity: Product) -> "ProductOutSchema":
+        return ProductOutSchema(
+            oid=entity.oid,
+            name=entity.name,
+            description=entity.description,
+            price=entity.price,
+            category=entity.category,
+        )
+
+
+class ProductInSchema(BaseModel):
+    name: str
+    description: str
+    price: int
+    category: str
+
+    def to_entity(self) -> Product:
+        return Product(
+            oid=None,
+            name=self.name,
+            description=self.description,
+            price=self.price,
+            category=self.category,
+        )

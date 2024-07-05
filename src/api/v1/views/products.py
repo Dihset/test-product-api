@@ -1,6 +1,15 @@
-from fastapi import APIRouter
+import punq
+from fastapi import APIRouter, Depends
 
-from src.api.v1.schemas import ApiResponse, ListPaginatedResponse, ProductOutSchema
+from src.api.v1.schemas import (
+    ApiResponse,
+    ListPaginatedResponse,
+    ProductInSchema,
+    ProductOutSchema,
+)
+from src.core.container import get_container
+from src.domain.commands import CreateProductCommand
+from src.domain.use_cases import CreateProductUseCase
 
 router = APIRouter()
 
@@ -17,8 +26,14 @@ def find_many_products_views() -> ApiResponse[ListPaginatedResponse[ProductOutSc
     "/",
     response_model=ApiResponse[ProductOutSchema],
 )
-def create_product_views() -> ApiResponse[ProductOutSchema]:
-    pass
+async def create_product_views(
+    product_in: ProductInSchema,
+    container: punq.Container = Depends(get_container),
+) -> ApiResponse[ProductOutSchema]:
+    use_case: CreateProductUseCase = container.resolve(CreateProductUseCase)
+    command = CreateProductCommand(product=product_in.to_entity())
+    product = await use_case.execute(command)
+    return ApiResponse(data=ProductOutSchema.from_entity(product))
 
 
 @router.get(
