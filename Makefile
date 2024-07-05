@@ -7,3 +7,6 @@ lint:
 
 format:
 	poetry run ruff format .
+
+run:
+	docker-compose up 
