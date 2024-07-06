@@ -15,7 +15,7 @@ class IProductRepository(ABC):
         return self.database.connection[self.collection_name]
 
     @abstractmethod
-    async def get_by_id(self, oidstr) -> ProductDto:
+    async def get_by_id(self, oidstr) -> ProductDto | None:
         pass
 
     @abstractmethod
@@ -28,7 +28,7 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, oid: str) -> ProductDto:
+    async def delete(self, oid: str) -> None:
         pass
 
     @abstractmethod
@@ -41,8 +41,9 @@ class IProductRepository(ABC):
 
 
 class MongoProductRepository(IProductRepository):
-    async def get_by_id(self, oidstr) -> ProductDto:
-        pass
+    async def get_by_id(self, oid: str) -> ProductDto | None:
+        doc = await self.collection.find_one({"oid": oid})
+        return ProductDto.load(doc)
 
     async def create(self, product: ProductDto) -> ProductDto:
         await self.collection.insert_one(product.dump())
@@ -51,8 +52,8 @@ class MongoProductRepository(IProductRepository):
     async def update(self, product: ProductDto) -> ProductDto:
         pass
 
-    async def delete(self, oid: str) -> ProductDto:
-        pass
+    async def delete(self, oid: str) -> None:
+        await self.collection.delete_one({"oid": oid})
 
     async def find_many(self, **kwargs) -> list[ProductDto]:
         pass

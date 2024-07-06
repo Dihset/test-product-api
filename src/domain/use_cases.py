@@ -1,6 +1,10 @@
 from dataclasses import dataclass
 
-from src.domain.commands import CreateProductCommand
+from src.domain.commands import (
+    CreateProductCommand,
+    DeleteProductCommand,
+    GetProductCommand,
+)
 from src.domain.entities import Product
 from src.domain.services import IProductService
 
@@ -17,8 +21,8 @@ class GetProductListUseCase:
 class GetProductUseCase:
     product_service: IProductService
 
-    async def execute(self) -> Product:
-        pass
+    async def execute(self, command: GetProductCommand) -> Product:
+        return await self.product_service.get_by_id(command.oid)
 
 
 @dataclass
@@ -41,5 +45,5 @@ class UpdateProductUseCase:
 class DeleteProductUseCase:
     product_service: IProductService
 
-    async def execute(self) -> Product:
-        pass
+    async def execute(self, command: DeleteProductCommand) -> Product:
+        return await self.product_service.delete(command.oid)

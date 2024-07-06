@@ -3,7 +3,12 @@ from functools import lru_cache
 import punq
 
 from src.domain.services import IProductService
-from src.domain.use_cases import CreateProductUseCase, UpdateProductUseCase
+from src.domain.use_cases import (
+    CreateProductUseCase,
+    DeleteProductUseCase,
+    GetProductUseCase,
+    UpdateProductUseCase,
+)
 from src.gateways.mongodb.database import Database
 from src.gateways.mongodb.repositories import IProductRepository, MongoProductRepository
 from src.services.product import MongoProductService
@@ -24,7 +29,9 @@ def init_container() -> punq.Container:
 
     container.register(IProductService, MongoProductService)
 
+    container.register(GetProductUseCase)
     container.register(CreateProductUseCase)
     container.register(UpdateProductUseCase)
+    container.register(DeleteProductUseCase)
 
     return container

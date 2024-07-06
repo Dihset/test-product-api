@@ -1,5 +1,5 @@
 import punq
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from src.api.v1.schemas import (
     ApiResponse,
@@ -8,8 +8,17 @@ from src.api.v1.schemas import (
     ProductOutSchema,
 )
 from src.core.container import get_container
-from src.domain.commands import CreateProductCommand
-from src.domain.use_cases import CreateProductUseCase
+from src.domain.commands import (
+    CreateProductCommand,
+    DeleteProductCommand,
+    GetProductCommand,
+)
+from src.domain.errors import ProductNotFoundException
+from src.domain.use_cases import (
+    CreateProductUseCase,
+    DeleteProductUseCase,
+    GetProductUseCase,
+)
 
 router = APIRouter()
 
@@ -40,8 +49,18 @@ async def create_product_views(
     "/{oid}",
     response_model=ApiResponse[ProductOutSchema],
 )
-def get_product_views() -> ApiResponse[ProductOutSchema]:
-    pass
+async def get_product_views(
+    oid: str,
+    container: punq.Container = Depends(get_container),
+) -> ApiResponse[ProductOutSchema]:
+    use_case: GetProductUseCase = container.resolve(GetProductUseCase)
+    command = GetProductCommand(oid=oid)
+    try:
+        product = await use_case.execute(command)
+    except ProductNotFoundException as error:
+        raise HTTPException(status_code=404, detail="Product not found") from error
+    else:
+        return ApiResponse(data=ProductOutSchema.from_entity(product))
 
 
 @router.put(
@@ -56,5 +75,15 @@ def update_product_views() -> ApiResponse[ProductOutSchema]:
     "/{oid}",
     response_model=ApiResponse[ProductOutSchema],
 )
-def delete_product_views() -> ApiResponse[ProductOutSchema]:
-    pass
+async def delete_product_views(
+    oid: str,
+    container: punq.Container = Depends(get_container),
+) -> ApiResponse[ProductOutSchema]:
+    use_case: DeleteProductUseCase = container.resolve(DeleteProductUseCase)
+    command = DeleteProductCommand(oid=oid)
+    try:
+        product = await use_case.execute(command)
+    except ProductNotFoundException as error:
+        raise HTTPException(status_code=404, detail="Product not found") from error
+    else:
+        return ApiResponse(data=ProductOutSchema.from_entity(product))

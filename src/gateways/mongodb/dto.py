@@ -28,7 +28,10 @@ class ProductDto(BaseDto):
             self.oid = str(uuid4())
 
     @staticmethod
-    def load(data: dict) -> "ProductDto":
+    def load(data: dict | None) -> "ProductDto":
+        if not data:
+            return None
+
         return ProductDto(
             oid=data.get("oid"),
             name=data.get("name"),
