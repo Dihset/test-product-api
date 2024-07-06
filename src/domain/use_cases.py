@@ -4,6 +4,7 @@ from src.domain.commands import (
     CreateProductCommand,
     DeleteProductCommand,
     GetProductCommand,
+    UpdateProductCommand,
 )
 from src.domain.entities import Product
 from src.domain.services import IProductService
@@ -37,8 +38,8 @@ class CreateProductUseCase:
 class UpdateProductUseCase:
     product_service: IProductService
 
-    async def execute(self) -> Product:
-        pass
+    async def execute(self, command: UpdateProductCommand) -> Product:
+        return await self.product_service.update(command.product)
 
 
 @dataclass

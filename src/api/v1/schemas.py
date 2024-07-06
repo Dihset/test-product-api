@@ -49,9 +49,9 @@ class ProductInSchema(BaseModel):
     price: int
     category: str
 
-    def to_entity(self) -> Product:
+    def to_entity(self, oid: str | None = None) -> Product:
         return Product(
-            oid=None,
+            oid=oid,
             name=self.name,
             description=self.description,
             price=self.price,

@@ -24,7 +24,7 @@ class IProductRepository(ABC):
         return product
 
     @abstractmethod
-    async def update(self, product: ProductDto) -> ProductDto:
+    async def update(self, product: ProductDto) -> None:
         pass
 
     @abstractmethod
@@ -49,8 +49,11 @@ class MongoProductRepository(IProductRepository):
         await self.collection.insert_one(product.dump())
         return product
 
-    async def update(self, product: ProductDto) -> ProductDto:
-        pass
+    async def update(self, product: ProductDto) -> None:
+        await self.collection.update_one(
+            {"oid": product.oid}, 
+            {"$set": product.dump()},
+        )
 
     async def delete(self, oid: str) -> None:
         await self.collection.delete_one({"oid": oid})

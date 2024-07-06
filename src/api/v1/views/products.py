@@ -12,12 +12,14 @@ from src.domain.commands import (
     CreateProductCommand,
     DeleteProductCommand,
     GetProductCommand,
+    UpdateProductCommand,
 )
 from src.domain.errors import ProductNotFoundException
 from src.domain.use_cases import (
     CreateProductUseCase,
     DeleteProductUseCase,
     GetProductUseCase,
+    UpdateProductUseCase,
 )
 
 router = APIRouter()
@@ -67,8 +69,15 @@ async def get_product_views(
     "/{oid}",
     response_model=ApiResponse[ProductOutSchema],
 )
-def update_product_views() -> ApiResponse[ProductOutSchema]:
-    pass
+async def update_product_views(
+    oid: str,
+    product_in: ProductInSchema,
+    container: punq.Container = Depends(get_container),
+) -> ApiResponse[ProductOutSchema]:
+    use_case: UpdateProductUseCase = container.resolve(UpdateProductUseCase)
+    command = UpdateProductCommand(product=product_in.to_entity(oid=oid))
+    product = await use_case.execute(command)
+    return ApiResponse(data=ProductOutSchema.from_entity(product))
 
 
 @router.delete(

@@ -22,7 +22,10 @@ class MongoProductService(IProductService):
         return dto.to_entity()
 
     async def update(self, product: Product) -> Product:
-        pass
+        await self.get_by_id(product.oid)
+        dto = ProductDto.from_entity(product)
+        await self.repository.update(dto)
+        return product
 
     async def delete(self, oid: str) -> Product:
         product = await self.get_by_id(oid)

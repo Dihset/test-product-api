@@ -12,6 +12,9 @@ class GetProductCommand:
 class CreateProductCommand:
     product: Product
 
+@dataclass
+class UpdateProductCommand:
+    product: Product
 
 @dataclass
 class DeleteProductCommand:
