@@ -12,3 +12,16 @@ services:
       MONGO_INITDB_DATABASE: $MONGO_DB
     env_file:
     - .env
+
+  app:
+    build:
+      context: .
+      target: development
+    command: |
+      sh web.entrypoint.sh
+    ports:
+    - "8000:8000"
+    env_file:
+    - .env
+    depends_on:
+    - mongodb

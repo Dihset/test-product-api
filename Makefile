@@ -9,4 +9,5 @@ format:
 	poetry run ruff format .
 
 run:
+	docker-compose build
 	docker-compose up 
