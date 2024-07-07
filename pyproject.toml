@@ -18,6 +18,8 @@ motor = "^3.5.0"
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.0"
 pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
+polyfactory = "^2.16.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -39,3 +41,7 @@ ignore = [
     "C901",  # too complex
     "W191",  # indentation contains tabs
 ]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

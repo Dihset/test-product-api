@@ -1,26 +1,24 @@
-from abc import ABC, abstractmethod
+from uuid import uuid4
 
 from src.domain.entities import Product
+from src.domain.services import IProductService
+from tests.mocks.factories import ProductFactory
 
 
-class IProductService(ABC):
-    @abstractmethod
+class DummyProductService(IProductService):
     async def get_by_id(self, oid: str) -> Product:
-        pass
+        return ProductFactory.build(oid=oid)
 
-    @abstractmethod
     async def create(self, product: Product) -> Product:
-        pass
+        product.oid = str(uuid4())
+        return product
 
-    @abstractmethod
     async def update(self, product: Product) -> Product:
-        pass
+        return product
 
-    @abstractmethod
     async def delete(self, oid: str) -> Product:
-        pass
+        return ProductFactory.build(oid=oid)
 
-    @abstractmethod
     async def find_many(
         self,
         sort_field: str,
@@ -31,6 +29,5 @@ class IProductService(ABC):
     ) -> list[Product]:
         pass
 
-    @abstractmethod
     async def count_many(self, search: str | None = None) -> int:
         pass

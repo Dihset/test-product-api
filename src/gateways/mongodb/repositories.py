@@ -16,7 +16,7 @@ class IProductRepository(ABC):
         return self.database.connection[self.collection_name]
 
     @abstractmethod
-    async def get_by_id(self, oidstr) -> ProductDto | None:
+    async def get_by_id(self, oid: str) -> ProductDto | None:
         pass
 
     @abstractmethod
