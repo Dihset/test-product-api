@@ -1,3 +1,4 @@
+import random
 from uuid import uuid4
 
 from src.domain.entities import Product
@@ -27,7 +28,7 @@ class DummyProductService(IProductService):
         limit: int,
         search: str | None = None,
     ) -> list[Product]:
-        pass
+        return [ProductFactory.build() for _ in range(random.randint(0, limit))]
 
     async def count_many(self, search: str | None = None) -> int:
-        pass
+        return random.randint(0, 1000)
