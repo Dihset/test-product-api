@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from src.api.v1.schemas import (
     ApiResponse,
     ListPaginatedResponse,
+    PaginationOutSchema,
     ProductInSchema,
     ProductOutSchema,
 )
@@ -12,12 +13,15 @@ from src.domain.commands import (
     CreateProductCommand,
     DeleteProductCommand,
     GetProductCommand,
+    GetProductListCommand,
+    PaginationQuery,
     UpdateProductCommand,
 )
 from src.domain.errors import ProductNotFoundException
 from src.domain.use_cases import (
     CreateProductUseCase,
     DeleteProductUseCase,
+    GetProductListUseCase,
     GetProductUseCase,
     UpdateProductUseCase,
 )
@@ -25,12 +29,44 @@ from src.domain.use_cases import (
 router = APIRouter()
 
 
+def get_pagination(
+    page: int = 0,
+    limit: int = 10,
+) -> PaginationQuery:
+    return PaginationQuery(page=page, limit=limit)
+
+
+def get_list_command_factory(
+    search: str | None = None,
+    pagination: PaginationQuery = Depends(get_pagination),
+):
+    return GetProductListCommand(
+        search=search,
+        pagination=pagination,
+
+    )
+
+
 @router.get(
     "/",
     response_model=ApiResponse[ListPaginatedResponse[ProductOutSchema]],
 )
-def find_many_products_views() -> ApiResponse[ListPaginatedResponse[ProductOutSchema]]:
-    pass
+async def find_many_products_views(
+    command: GetProductListCommand = Depends(get_list_command_factory),
+    container: punq.Container = Depends(get_container),
+) -> ApiResponse[ListPaginatedResponse[ProductOutSchema]]:
+    use_case: GetProductListUseCase = container.resolve(GetProductListUseCase)
+    products, count = await use_case.execute(command)
+
+    response = ListPaginatedResponse(
+        items=[ProductOutSchema.from_entity(product) for product in products],
+        pagination=PaginationOutSchema(
+            page=command.pagination.page,
+            limit=command.pagination.limit,
+            total=count,
+        ),
+    )
+    return ApiResponse(data=response)
 
 
 @router.post(

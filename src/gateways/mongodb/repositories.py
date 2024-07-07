@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from typing import AsyncIterable
 
 from src.gateways.mongodb.database import Database
 from src.gateways.mongodb.dto import ProductDto
@@ -32,11 +33,18 @@ class IProductRepository(ABC):
         pass
 
     @abstractmethod
-    async def find_many(self, **kwargs) -> list[ProductDto]:
+    async def find_many(
+        self,
+        sort_field: str,
+        sort_order: int,
+        offset: int,
+        limit: int,
+        search: str | None = None,
+    ) -> AsyncIterable[ProductDto]:
         pass
 
     @abstractmethod
-    async def count_many(self, **kwargs) -> int:
+    async def count_many(self, search: str | None = None) -> int:
         pass
 
 
@@ -51,15 +59,43 @@ class MongoProductRepository(IProductRepository):
 
     async def update(self, product: ProductDto) -> None:
         await self.collection.update_one(
-            {"oid": product.oid}, 
+            {"oid": product.oid},
             {"$set": product.dump()},
         )
 
     async def delete(self, oid: str) -> None:
         await self.collection.delete_one({"oid": oid})
 
-    async def find_many(self, **kwargs) -> list[ProductDto]:
-        pass
+    def _build_find_guery(self, search: str | None = None) -> dict:
+        query = {}
 
-    async def count_many(self, **kwargs) -> int:
-        pass
+        if search:
+            search_query = {
+                "name": {"$regex": search},
+                "description": {"$regex": search},
+            }
+            query.update(search_query)
+
+        return query
+
+    async def find_many(
+        self,
+        sort_field: str,
+        sort_order: int,
+        offset: int,
+        limit: int,
+        search: str | None = None,
+    ) -> AsyncIterable[ProductDto]:
+        query = self._build_find_guery(search)
+        cursor = (
+            self.collection.find(query)
+            .sort(sort_field, sort_order)
+            .skip(offset)
+            .limit(limit)
+        )
+        async for document in cursor:
+            yield ProductDto.load(document)
+
+    async def count_many(self, search: str | None = None) -> int:
+        query = self._build_find_guery(search)
+        return await self.collection.count_documents(query)

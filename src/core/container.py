@@ -6,6 +6,7 @@ from src.domain.services import IProductService
 from src.domain.use_cases import (
     CreateProductUseCase,
     DeleteProductUseCase,
+    GetProductListUseCase,
     GetProductUseCase,
     UpdateProductUseCase,
 )
@@ -29,6 +30,7 @@ def init_container() -> punq.Container:
 
     container.register(IProductService, MongoProductService)
 
+    container.register(GetProductListUseCase)
     container.register(GetProductUseCase)
     container.register(CreateProductUseCase)
     container.register(UpdateProductUseCase)

@@ -32,8 +32,25 @@ class MongoProductService(IProductService):
         await self.repository.delete(oid)
         return product
 
-    async def find_many(self, **kwargs) -> list[Product]:
-        pass
+    async def find_many(
+        self,
+        sort_field: str,
+        sort_order: int,
+        offset: int,
+        limit: int,
+        search: str | None = None,
+    ) -> list[Product]:
+        product_dto_iter = self.repository.find_many(
+            sort_field=sort_field,
+            sort_order=sort_order,
+            offset=offset,
+            limit=limit,
+            search=search,
+        )
+        return [product_dto.to_entity() async for product_dto in product_dto_iter]
 
-    async def count_many(self, **kwargs) -> int:
-        pass
+    async def count_many(
+        self,
+        search: str | None = None,
+    ) -> int:
+        return await self.repository.count_many(search=search)

@@ -8,7 +8,7 @@ TData = TypeVar("TData")
 TListItem = TypeVar("TListItem")
 
 
-class PaginationOut(BaseModel):
+class PaginationOutSchema(BaseModel):
     page: int
     limit: int
     total: int
@@ -16,7 +16,7 @@ class PaginationOut(BaseModel):
 
 class ListPaginatedResponse(BaseModel, Generic[TListItem]):
     items: list[TListItem]
-    pagination: PaginationOut
+    pagination: PaginationOutSchema
 
 
 class ApiResponse(BaseModel, Generic[TData]):

@@ -1,9 +1,11 @@
+import asyncio
 from dataclasses import dataclass
 
 from src.domain.commands import (
     CreateProductCommand,
     DeleteProductCommand,
     GetProductCommand,
+    GetProductListCommand,
     UpdateProductCommand,
 )
 from src.domain.entities import Product
@@ -14,8 +16,22 @@ from src.domain.services import IProductService
 class GetProductListUseCase:
     product_service: IProductService
 
-    async def execute(self) -> tuple[list[Product], int]:
-        pass
+    async def execute(
+        self, command: GetProductListCommand
+    ) -> tuple[list[Product], int]:
+        products_task = asyncio.create_task(
+            self.product_service.find_many(
+                sort_field=command.sort.field,
+                sort_order=command.sort.order.value,
+                offset=command.pagination.offset,
+                limit=command.pagination.limit,
+                search=command.search,
+            )
+        )
+        count_task = asyncio.create_task(
+            self.product_service.count_many(command.search)
+        )
+        return await products_task, await count_task
 
 
 @dataclass

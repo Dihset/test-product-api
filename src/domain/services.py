@@ -21,9 +21,16 @@ class IProductService(ABC):
         pass
 
     @abstractmethod
-    async def find_many(self, **kwargs) -> list[Product]:
+    async def find_many(
+        self,
+        sort_field: str,
+        sort_order: int,
+        offset: int,
+        limit: int,
+        search: str | None = None,
+    ) -> list[Product]:
         pass
 
     @abstractmethod
-    async def count_many(self, **kwargs) -> int:
+    async def count_many(self, search: str | None = None) -> int:
         pass
