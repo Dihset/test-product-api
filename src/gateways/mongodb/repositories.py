@@ -71,8 +71,10 @@ class MongoProductRepository(IProductRepository):
 
         if search:
             search_query = {
-                "name": {"$regex": search},
-                "description": {"$regex": search},
+                "$or": [
+                    {"name": {"$regex": search}},
+                    {"description": {"$regex": search}},
+                ],
             }
             query.update(search_query)
 
