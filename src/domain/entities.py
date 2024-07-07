@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+import enum
+from dataclasses import dataclass, fields
 
 
 @dataclass
@@ -8,3 +9,9 @@ class Product:
     description: str
     price: int
     category: str
+
+
+ProductSortFieldsEnum = enum.Enum(
+    "ProductListField",
+    {field.name: field.name for field in fields(Product)},
+)

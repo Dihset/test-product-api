@@ -14,13 +14,13 @@ class PaginationQuery:
         return self.page * self.limit
 
 
-class SortOrderEnum(enum.Enum):
+class SortOrderEnum(int, enum.Enum):
     asc = 1
     decs = -1
 
 
 @dataclass
-class SortQuery:
+class ProductSortQuery:
     field: str = "id"
     order: SortOrderEnum = SortOrderEnum.asc
 
@@ -29,7 +29,7 @@ class SortQuery:
 class GetProductListCommand:
     search: str
     pagination: PaginationQuery = field(default_factory=PaginationQuery)
-    sort: SortQuery = field(default_factory=SortQuery)
+    sort: ProductSortQuery = field(default_factory=ProductSortQuery)
 
 
 @dataclass

@@ -15,8 +15,11 @@ from src.domain.commands import (
     GetProductCommand,
     GetProductListCommand,
     PaginationQuery,
+    ProductSortQuery,
+    SortOrderEnum,
     UpdateProductCommand,
 )
+from src.domain.entities import ProductSortFieldsEnum
 from src.domain.errors import ProductNotFoundException
 from src.domain.use_cases import (
     CreateProductUseCase,
@@ -39,11 +42,16 @@ def get_pagination(
 def get_list_command_factory(
     search: str | None = None,
     pagination: PaginationQuery = Depends(get_pagination),
+    sort_field: ProductSortFieldsEnum = ProductSortFieldsEnum.oid,
+    sort_order: SortOrderEnum = SortOrderEnum.asc,
 ):
     return GetProductListCommand(
         search=search,
         pagination=pagination,
-
+        sort=ProductSortQuery(
+            field=sort_field.value,
+            order=sort_order,
+        ),
     )
 
 
